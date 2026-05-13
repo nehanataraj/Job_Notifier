@@ -1,0 +1,19 @@
+[Unit]
+Description=Internship job watcher (Telegram)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Oracle Ubuntu images often use "ubuntu"; Oracle Linux cloud images use "opc".
+User=ubuntu
+WorkingDirectory=/home/ubuntu/job
+Environment=CONFIG_PATH=/home/ubuntu/job/config.json
+Environment=STATE_DB_PATH=/home/ubuntu/job/state.db
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/ubuntu/job/.venv/bin/python /home/ubuntu/job/main.py
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target

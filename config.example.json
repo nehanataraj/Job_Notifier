@@ -1,0 +1,31 @@
+{
+  "poll_interval_seconds": 120,
+  "title_keywords": ["intern", "internship", "student"],
+  "location_filter": {
+    "countries": ["US"]
+  },
+  "sources": [
+    {
+      "name": "Google",
+      "type": "google_careers",
+      "search_url": "https://www.google.com/about/careers/applications/jobs/results/?q=intern",
+      "data_key": "ds:1"
+    },
+    {
+      "name": "Microsoft",
+      "type": "microsoft",
+      "domain": "microsoft.com",
+      "query": "intern"
+    },
+    {
+      "name": "Stripe",
+      "type": "greenhouse",
+      "board_token": "stripe"
+    },
+    {
+      "name": "Another company",
+      "type": "greenhouse",
+      "board_token": "their_greenhouse_board_token"
+    }
+  ]
+}

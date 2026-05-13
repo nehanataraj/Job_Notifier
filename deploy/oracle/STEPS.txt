@@ -1,0 +1,141 @@
+Oracle Cloud Always Free — step-by-step (VM + systemd watcher)
+==============================================================
+
+Goal: one small ARM Ubuntu VM that runs main.py 24/7 with Telegram + SQLite state.
+
+Oracle’s web UI changes sometimes; names below might differ slightly—look for the same ideas.
+
+
+PART 1 — Account and login
+-------------------------
+1. Go to https://www.oracle.com/cloud/free/ and create an account (or log in).
+2. Complete verification if Oracle asks (email / phone). Approval can take a little time.
+3. Pick a **home region** when prompted (choose one close to you; changing later is messy).
+
+
+PART 2 — Create the VM (Compute instance)
+------------------------------------------
+4. In the Oracle Cloud **Console**, open the **menu (☰)** → **Compute** → **Instances**.
+5. Click **Create instance**.
+6. **Name:** anything you like (e.g. internship-watcher).
+7. **Placement:** leave default or pick an **Availability Domain** that shows **Always Free-eligible** Ampere capacity (if the UI shows it).
+8. **Image:** click **Change image** → choose **Canonical Ubuntu** → **22.04** → **aarch64** (ARM64). Apply.
+9. **Shape:** click **Change shape** → **Ampere** / **A1 Flex** (ARM).  
+   - Pick something within **Always Free** limits (Oracle documents max OCPU/RAM for free Ampere—often up to **4 OCPUs and 24 GB RAM total per tenancy** across all Ampere VMs; using **1 OCPU + 6 GB RAM** for one VM is a safe small choice).
+10. **Networking:**  
+    - **Primary VNIC:** create new VCN **or** use default—ensure the instance gets a **public subnet** and **public IPv4 address** (wording: “Assign public IPv4” / “Public subnet”—enable it).  
+    - You need to SSH from the internet on the first setup.
+11. **SSH keys:** choose **Generate key pair for me** **or** upload your public key.  
+    - If Oracle generates keys: **download BOTH** the private `.key` and public `.pub` and store the **private key only** somewhere safe on your Mac (e.g. ~/.ssh/oracle-job.key).
+
+
+PART 3 — Allow SSH from your IP only
+------------------------------------
+12. After the instance exists, open **Networking** → **Virtual cloud networks** → your VCN → **Security lists** (or subnet security lists—Oracle sometimes puts rules on the subnet).
+13. Find the **Ingress rules**. Add (or confirm) a rule:  
+    - **Source:** your home IP /32 (search “what is my ip” in a browser).  
+    - **IP protocol:** TCP  
+    - **Destination port:** 22  
+    - **Source type:** CIDR **x.x.x.x/32**  
+    Avoid opening port 22 to **0.0.0.0/0** unless you understand the risk.
+
+
+PART 4 — Connect by SSH from your Mac
+--------------------------------------
+14. On your Mac, put the private key in a folder and lock permissions:  
+    chmod 600 /path/to/your-private.key
+15. On the instance **details** page in Oracle, copy the **Public IP address**.
+16. Try Ubuntu’s default user first:  
+    ssh -i /path/to/your-private.key ubuntu@PUBLIC_IP  
+    If that fails, try:  
+    ssh -i /path/to/your-private.key opc@PUBLIC_IP  
+    (Oracle Linux images often use **opc**; Ubuntu cloud images use **ubuntu**.)
+
+
+PART 5 — Install system packages on the VM
+-------------------------------------------
+17. After login:  
+    sudo apt update && sudo apt install -y python3 python3-venv python3-pip git nano
+
+
+PART 6 — Copy your project to the VM
+--------------------------------------
+Pick ONE method.
+
+**Option A — from your Mac with rsync** (replace paths and IP):  
+18. On Mac Terminal:  
+    rsync -avz --exclude '.venv' --exclude '__pycache__' --exclude 'state.db' \  
+      -e "ssh -i /path/to/your-private.key" \  
+      /Users/ahalyaanil/Documents/job/ \  
+      ubuntu@PUBLIC_IP:~/job/  
+    If your SSH user is **opc**, use `opc@PUBLIC_IP` and path `~/job/`.
+
+**Option B — git clone** (if the project is on GitHub):  
+18. On the VM:  
+    git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git ~/job
+
+
+PART 7 — Python virtualenv and dependencies
+--------------------------------------------
+19. On the VM:  
+    cd ~/job  
+    python3 -m venv .venv  
+    .venv/bin/pip install --upgrade pip  
+    .venv/bin/pip install -r requirements.txt
+
+
+PART 8 — Environment variables (.env on the server)
+--------------------------------------------------
+20. On the VM:  
+    nano ~/job/.env  
+21. Put exactly (fill with your real values from your Mac—same as local):  
+    TELEGRAM_BOT_TOKEN=...  
+    TELEGRAM_CHAT_ID=...  
+22. Save: Ctrl+O, Enter, then Ctrl+X.
+
+
+PART 9 — Test run manually (optional but smart)
+-----------------------------------------------
+23. On the VM:  
+    cd ~/job  
+    .venv/bin/python main.py --once  
+    You should see no Python errors; Telegram may fire if it finds new matches (first run can send several messages).
+
+
+PART 10 — Install systemd service (runs after reboot)
+-----------------------------------------------------
+24. If your Linux user is **ubuntu** and project is **/home/ubuntu/job**, you can use the file as-is. If your user is **opc**, open the service file and replace **every** `ubuntu` with **opc** and `/home/ubuntu/` with `/home/opc/`.
+
+25. Copy the unit file:  
+    sudo cp ~/job/deploy/oracle/internship-watcher.service /etc/systemd/system/internship-watcher.service
+
+26. Reload and start:  
+    sudo systemctl daemon-reload  
+    sudo systemctl enable internship-watcher  
+    sudo systemctl start internship-watcher
+
+
+PART 11 — Verify and logs
+-------------------------
+27. Status:  
+    sudo systemctl status internship-watcher  
+28. Live logs:  
+    journalctl -u internship-watcher -f  
+    (Ctrl+C to stop watching.)
+
+29. If something fails, read the error from **status** or **journalctl**—often wrong **User=**, wrong **path**, or missing `.env`.
+
+
+PART 12 — Stop or uninstall the service
+-----------------------------------------
+30. Stop:  
+    sudo systemctl stop internship-watcher  
+31. Disable boot start:  
+    sudo systemctl disable internship-watcher
+
+
+Notes
+-----
+- **Billing:** Always Free resources must stay within Oracle’s current free-tier rules. Check Oracle’s “Free Tier” documentation when sizing the VM.
+- **Outbound internet:** The VM must reach **HTTPS** (443) for Greenhouse and Telegram. Default egress usually allows this; if not, fix **egress** rules in the security list / NSG.
+- **Secrets:** Never commit `.env` or paste tokens in screenshots/discord.

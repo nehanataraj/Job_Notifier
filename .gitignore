@@ -1,0 +1,6 @@
+.env
+state.db
+.venv/
+__pycache__/
+*.pyc
+.python-version

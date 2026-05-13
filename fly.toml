@@ -1,0 +1,17 @@
+# After first deploy: fly volumes create job_state --region iad --size 1
+# Then deploy again so the volume attaches.
+
+app = "internship-watcher"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  STATE_DB_PATH = "/data/state.db"
+  CONFIG_PATH = "/app/config.json"
+
+[mounts]
+  source = "job_state"
+  destination = "/data"
+  initial_size = "1gb"

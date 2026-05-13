@@ -1,0 +1,316 @@
+{
+  "poll_interval_seconds": 180,
+  "title_keywords": [
+    "intern",
+    "internship",
+    "student"
+  ],
+  "location_filter": {
+    "countries": ["US"]
+  },
+  "sources": [
+    {
+      "name": "Microsoft",
+      "type": "pcsx",
+      "list_url": "https://apply.careers.microsoft.com/api/pcsx/search",
+      "domain": "microsoft.com",
+      "query": "intern"
+    },
+    {
+      "name": "Google",
+      "type": "google_careers",
+      "search_url": "https://www.google.com/about/careers/applications/jobs/results/?q=intern",
+      "data_key": "ds:1"
+    },
+    {
+      "name": "Netflix",
+      "type": "pcsx",
+      "list_url": "https://explore.jobs.netflix.net/api/apply/v2/jobs",
+      "domain": "netflix.com",
+      "query": "intern",
+      "page_size_param": "num",
+      "page_size": 10
+    },
+    {
+      "name": "Amazon",
+      "type": "amazon",
+      "query": "intern"
+    },
+    {
+      "name": "NVIDIA",
+      "type": "workday",
+      "host": "https://nvidia.wd5.myworkdayjobs.com",
+      "tenant": "nvidia",
+      "site": "NVIDIAExternalCareerSite",
+      "search_text": "intern"
+    },
+    {
+      "name": "Salesforce",
+      "type": "workday",
+      "host": "https://salesforce.wd12.myworkdayjobs.com",
+      "tenant": "salesforce",
+      "site": "External_Career_Site",
+      "search_text": "intern"
+    },
+    {
+      "name": "Adobe",
+      "type": "workday",
+      "host": "https://adobe.wd5.myworkdayjobs.com",
+      "tenant": "adobe",
+      "site": "external_experienced",
+      "search_text": "intern"
+    },
+    {
+      "name": "Workday",
+      "type": "workday",
+      "host": "https://workday.wd5.myworkdayjobs.com",
+      "tenant": "workday",
+      "site": "Workday",
+      "search_text": "intern"
+    },
+    {
+      "name": "BlackRock",
+      "type": "workday",
+      "host": "https://blackrock.wd1.myworkdayjobs.com",
+      "tenant": "blackrock",
+      "site": "BlackRock_Professional",
+      "search_text": "intern"
+    },
+    {
+      "name": "Leidos",
+      "type": "workday",
+      "host": "https://leidos.wd5.myworkdayjobs.com",
+      "tenant": "leidos",
+      "site": "External",
+      "search_text": "intern"
+    },
+    {
+      "name": "Boston Dynamics",
+      "type": "workday",
+      "host": "https://bostondynamics.wd1.myworkdayjobs.com",
+      "tenant": "bostondynamics",
+      "site": "Boston_Dynamics",
+      "search_text": "intern"
+    },
+    {
+      "name": "Booz Allen Hamilton",
+      "type": "workday",
+      "host": "https://bah.wd1.myworkdayjobs.com",
+      "tenant": "bah",
+      "site": "BAH_Jobs",
+      "search_text": "intern"
+    },
+    {
+      "name": "Morgan Stanley",
+      "type": "pcsx",
+      "list_url": "https://morganstanley.eightfold.ai/api/pcsx/search",
+      "domain": "morganstanley.com",
+      "query": "intern"
+    },
+    {
+      "name": "LinkedIn",
+      "type": "greenhouse",
+      "board_token": "linkedin"
+    },
+    {
+      "name": "Uber",
+      "type": "greenhouse",
+      "board_token": "uberfreight"
+    },
+    {
+      "name": "Lyft",
+      "type": "greenhouse",
+      "board_token": "lyft"
+    },
+    {
+      "name": "Twitter / X",
+      "type": "smartrecruiters",
+      "company_id": "x"
+    },
+    {
+      "name": "Pinterest",
+      "type": "greenhouse",
+      "board_token": "pinterest"
+    },
+    {
+      "name": "Dropbox",
+      "type": "greenhouse",
+      "board_token": "dropbox"
+    },
+    {
+      "name": "ServiceNow",
+      "type": "smartrecruiters",
+      "company_id": "servicenow"
+    },
+    {
+      "name": "SpaceX",
+      "type": "greenhouse",
+      "board_token": "spacex"
+    },
+    {
+      "name": "Waymo",
+      "type": "greenhouse",
+      "board_token": "waymo"
+    },
+    {
+      "name": "Zoox",
+      "type": "lever",
+      "company_slug": "zoox"
+    },
+    {
+      "name": "Nuro",
+      "type": "greenhouse",
+      "board_token": "nuro"
+    },
+    {
+      "name": "Stripe",
+      "type": "greenhouse",
+      "board_token": "stripe"
+    },
+    {
+      "name": "Robinhood",
+      "type": "greenhouse",
+      "board_token": "robinhood"
+    },
+    {
+      "name": "Affirm",
+      "type": "greenhouse",
+      "board_token": "affirm"
+    },
+    {
+      "name": "Chime",
+      "type": "greenhouse",
+      "board_token": "chime"
+    },
+    {
+      "name": "Plaid",
+      "type": "ashby",
+      "board_slug": "plaid"
+    },
+    {
+      "name": "Brex",
+      "type": "greenhouse",
+      "board_token": "brex"
+    },
+    {
+      "name": "Ramp",
+      "type": "ashby",
+      "board_slug": "ramp"
+    },
+    {
+      "name": "Jane Street",
+      "type": "greenhouse",
+      "board_token": "janestreet"
+    },
+    {
+      "name": "Optiver",
+      "type": "greenhouse",
+      "board_token": "optiverus"
+    },
+    {
+      "name": "Virtu Financial",
+      "type": "greenhouse",
+      "board_token": "virtu"
+    },
+    {
+      "name": "Anthropic",
+      "type": "greenhouse",
+      "board_token": "anthropic"
+    },
+    {
+      "name": "OpenAI",
+      "type": "ashby",
+      "board_slug": "openai"
+    },
+    {
+      "name": "Scale AI",
+      "type": "greenhouse",
+      "board_token": "scaleai"
+    },
+    {
+      "name": "Cohere",
+      "type": "ashby",
+      "board_slug": "cohere"
+    },
+    {
+      "name": "Mistral AI",
+      "type": "ashby",
+      "board_slug": "mistral"
+    },
+    {
+      "name": "Perplexity AI",
+      "type": "ashby",
+      "board_slug": "perplexity"
+    },
+    {
+      "name": "xAI",
+      "type": "greenhouse",
+      "board_token": "xai"
+    },
+    {
+      "name": "Codeium / Windsurf",
+      "type": "ashby",
+      "board_slug": "cognition"
+    },
+    {
+      "name": "Anduril",
+      "type": "greenhouse",
+      "board_token": "andurilindustries"
+    },
+    {
+      "name": "Palantir",
+      "type": "lever",
+      "company_slug": "palantir"
+    },
+    {
+      "name": "Notion",
+      "type": "ashby",
+      "board_slug": "notion"
+    },
+    {
+      "name": "Linear",
+      "type": "ashby",
+      "board_slug": "linear"
+    },
+    {
+      "name": "Vercel",
+      "type": "greenhouse",
+      "board_token": "vercel"
+    },
+    {
+      "name": "Airtable",
+      "type": "greenhouse",
+      "board_token": "airtable"
+    },
+    {
+      "name": "Figma",
+      "type": "greenhouse",
+      "board_token": "figma"
+    },
+    {
+      "name": "Amplitude",
+      "type": "greenhouse",
+      "board_token": "amplitude"
+    },
+    {
+      "name": "Datadog",
+      "type": "greenhouse",
+      "board_token": "datadog"
+    },
+    {
+      "name": "Snowflake",
+      "type": "ashby",
+      "board_slug": "snowflake"
+    },
+    {
+      "name": "Databricks",
+      "type": "greenhouse",
+      "board_token": "databricks"
+    },
+    {
+      "name": "Hugging Face",
+      "type": "workable",
+      "shortcode": "huggingface"
+    }
+  ]
+}
