@@ -56,6 +56,7 @@ COMPANIES: dict[str, list[str]] = {
     "Hudson River Trading": ["hudsonrivertrading", "hrt"],
     "Optiver": ["optiver", "optiverus"],
     "Goldman Sachs": ["goldmansachs", "gs"],
+    "Capital One": ["capitalone", "capitalonecareers"],
     "Morgan Stanley": ["morganstanley"],
     "BlackRock": ["blackrock"],
     "Virtu Financial": ["virtu", "virtufinancial"],
