@@ -15,6 +15,7 @@ COMPANIES: dict[str, list[str]] = {
     "Meta": ["meta", "facebook", "metacareers", "fb"],
     "Microsoft": ["microsoft"],
     "Amazon": ["amazon", "amazonjobs", "amazonwebservices", "aws"],
+    "Oracle": ["oracle", "oraclecorporation"],
     "Apple": ["apple", "appleinc"],
     "NVIDIA": ["nvidia", "nvidiacorporation"],
     "Netflix": ["netflix", "netflixjobs"],

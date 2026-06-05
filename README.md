@@ -92,11 +92,11 @@ The bundled unit file sets **`PYTHONUNBUFFERED=1`** so log lines from Python sho
 
 ## Companies included (current `config.json`)
 
-These **55** sources are polled (name as shown in notifications):
+These **56** sources are polled (name as shown in notifications):
 
-**All tracked employers (55):** Microsoft · Google · Netflix · Amazon · NVIDIA · Salesforce · Adobe · Workday · BlackRock · Leidos · Boston Dynamics · Booz Allen Hamilton · Morgan Stanley · **Capital One** · LinkedIn · Uber · Lyft · Twitter / X · Pinterest · Dropbox · ServiceNow · SpaceX · Waymo · Zoox · Nuro · Stripe · Robinhood · Affirm · Chime · Plaid · Brex · Ramp · Jane Street · Optiver · Virtu Financial · Anthropic · OpenAI · Scale AI · Cohere · Mistral AI · Perplexity AI · xAI · Codeium / Windsurf · Anduril · Palantir · Notion · Linear · Vercel · Airtable · Figma · Amplitude · Datadog · Snowflake · Databricks · Hugging Face
+**All tracked employers (56):** Microsoft · Google · Netflix · Amazon · **Oracle** · NVIDIA · Salesforce · Adobe · Workday · BlackRock · Leidos · Boston Dynamics · Booz Allen Hamilton · Morgan Stanley · Capital One · LinkedIn · Uber · Lyft · Twitter / X · Pinterest · Dropbox · ServiceNow · SpaceX · Waymo · Zoox · Nuro · Stripe · Robinhood · Affirm · Chime · Plaid · Brex · Ramp · Jane Street · Optiver · Virtu Financial · Anthropic · OpenAI · Scale AI · Cohere · Mistral AI · Perplexity AI · xAI · Codeium / Windsurf · Anduril · Palantir · Notion · Linear · Vercel · Airtable · Figma · Amplitude · Datadog · Snowflake · Databricks · Hugging Face
 
-**Feed types in use:** PCSX / Eightfold-style (`microsoft`, `pcsx`), `google_careers`, `amazon`, `workday`, `greenhouse`, `lever`, `ashby`, `smartrecruiters`, `workable` (Hugging Face via `apply.workable.com/.../jobs.md`).
+**Feed types in use:** PCSX / Eightfold-style (`microsoft`, `pcsx`), `google_careers`, `amazon`, `oracle_careers`, `workday`, `greenhouse`, `lever`, `ashby`, `smartrecruiters`, `workable` (Hugging Face via `apply.workable.com/.../jobs.md`).
 
 ---
 

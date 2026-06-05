@@ -38,6 +38,13 @@ SOURCES: list[dict] = [
         "query": "intern",
     },
     {
+        "name": "Oracle",
+        "type": "oracle_careers",
+        "host": "eeho.fa.us2.oraclecloud.com",
+        "site_number": "CX_45001",
+        "search_keyword": "intern",
+    },
+    {
         "name": "NVIDIA",
         "type": "workday",
         "host": "https://nvidia.wd5.myworkdayjobs.com",

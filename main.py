@@ -13,6 +13,7 @@ import re
 import sqlite3
 import sys
 import time
+import uuid
 from pathlib import Path
 from html import escape as html_escape
 from typing import Any
@@ -661,6 +662,91 @@ def fetch_workable(src: dict[str, Any]) -> list[dict[str, Any]]:
     return out
 
 
+def fetch_oracle_careers(src: dict[str, Any]) -> list[dict[str, Any]]:
+    """
+    Oracle Cloud HCM careers (careers.oracle.com).
+    Uses the public recruitingCEJobRequisitions REST API.
+    """
+    host = (src.get("host") or "eeho.fa.us2.oraclecloud.com").strip().rstrip("/")
+    site_number = (src.get("site_number") or "CX_45001").strip()
+    keyword = (src.get("search_keyword") or "intern").strip()
+    job_url_tmpl = (
+        src.get("job_url")
+        or "https://careers.oracle.com/en/sites/jobsearch/job/{id}"
+    ).strip()
+    page_size = int(src.get("page_size") or 100)
+    out: list[dict[str, Any]] = []
+    offset = 0
+    list_url = f"https://{host}/hcmRestApi/resources/latest/recruitingCEJobRequisitions"
+
+    while True:
+        params = {
+            "onlyData": "true",
+            "expand": (
+                "requisitionList.workLocation,"
+                "requisitionList.otherWorkLocations,"
+                "requisitionList.secondaryLocations"
+            ),
+            "finder": f"findReqs;siteNumber={site_number},keyword={keyword}",
+            "limit": page_size,
+            "offset": offset,
+        }
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            ),
+            "Accept": "application/json",
+            "ora-irc-cx-userid": str(uuid.uuid4()),
+            "ora-irc-language": "en",
+            "content-type": "application/vnd.oracle.adf.resourceitem+json;charset=utf-8",
+        }
+        r = requests.get(list_url, params=params, headers=headers, timeout=45)
+        r.raise_for_status()
+        payload = r.json() or {}
+        postings = (payload.get("items") or [{}])[0].get("requisitionList") or []
+        if not postings:
+            break
+
+        for p in postings:
+            jid = str(p.get("Id") or "")
+            title = (p.get("Title") or "").strip()
+            if not jid or not title:
+                continue
+            link = job_url_tmpl.format(id=jid)
+            hints: list[str] = []
+            primary_loc = (p.get("PrimaryLocation") or "").strip()
+            if primary_loc:
+                hints.append(primary_loc)
+            for key in ("secondaryLocations", "otherWorkLocations", "workLocation"):
+                for loc in p.get(key) or []:
+                    if isinstance(loc, dict):
+                        for field in ("Name", "TownOrCity", "CountryCode"):
+                            val = (loc.get(field) or "").strip()
+                            if val:
+                                hints.append(val)
+                    elif isinstance(loc, str) and loc.strip():
+                        hints.append(loc.strip())
+            cc = (p.get("PrimaryLocationCountry") or "").strip().lower()
+            row: dict[str, Any] = {
+                "id": jid,
+                "title": title,
+                "url": link,
+                "location_hints": hints,
+            }
+            if cc:
+                row["country_code"] = cc
+            out.append(row)
+
+        if not payload.get("hasMore"):
+            break
+        offset += len(postings)
+        if len(postings) < page_size:
+            break
+
+    return out
+
+
 def fetch_microsoft(src: dict[str, Any]) -> list[dict[str, Any]]:
     merged = {
         "list_url": "https://apply.careers.microsoft.com/api/pcsx/search",
@@ -697,6 +783,12 @@ def source_key(src: dict[str, Any]) -> str:
         )
     if stype == "workable":
         return f"workable:{src.get('shortcode') or src.get('name') or 'unknown'}"
+    if stype == "oracle_careers":
+        return (
+            f"oracle_careers:{src.get('host') or 'eeho.fa.us2.oraclecloud.com'}:"
+            f"{src.get('site_number') or 'CX_45001'}:"
+            f"{src.get('search_keyword') or 'intern'}"
+        )
     if stype == "google_careers":
         return (
             f"google_careers:{src.get('data_key') or 'ds:1'}:"
@@ -716,6 +808,7 @@ FETCHERS = {
     "microsoft": fetch_microsoft,
     "google_careers": fetch_google_careers,
     "workable": fetch_workable,
+    "oracle_careers": fetch_oracle_careers,
 }
 
 
