@@ -110,3 +110,28 @@ Employers without a verified public feed in this watcher (e.g. Meta, Apple, Tesl
 
 - Do not commit **`.env`** or **private SSH keys**.  
 - Ensure the VM allows **HTTPS outbound** (443) to job boards and `api.telegram.org`.
+
+---
+
+## Intern Tracker webapp
+
+Companion UI for marking companies applied, calendar deadlines, and Telegram sync.
+
+| What | Where |
+|------|-------|
+| **Live app** | https://webapp-two-peach.vercel.app |
+| **Source** | https://github.com/nehanataraj/internship-notifs |
+| **Setup guide** | See README in the webapp repo |
+
+Use the **same** `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in the webapp Settings as in this repo's `.env`. One-time pin bootstrap:
+
+```bash
+.venv/bin/python scripts/bootstrap_pinned.py
+```
+
+Regenerate `companies.json` for the webapp:
+
+```bash
+.venv/bin/python scripts/build_webapp_data.py
+```
+
