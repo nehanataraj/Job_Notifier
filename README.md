@@ -1,137 +1,116 @@
 # Internship job watcher
 
-Polls public job-board feeds for internship-related titles, remembers what you have already seen in **SQLite**, and sends **Telegram** notifications for new US-matching postings (see `config.json` for keywords and filters).
+Polls **171** public job-board feeds for internship-related titles, remembers what you've already seen in **SQLite**, and sends **Telegram** notifications for new US-matching postings (see `config.json` for keywords and filters). Runs for free, 24/7, on **GitHub Actions** — no server required.
+
+A companion webapp (`webapp/`, deployed separately) lets you browse tracked companies, mark applications, track OA/interview deadlines, and tailor your resume.
 
 ---
 
-## Telegram setup
+## Setting this up for yourself
 
-1. **Create a bot**  
-   In Telegram, open a chat with [@BotFather](https://t.me/BotFather), send `/newbot`, and follow the prompts. BotFather gives you a **bot token** (looks like `123456789:AAH…`).
+This is a from-scratch setup guide — follow it top to bottom on a fresh fork/clone.
 
-2. **Get your chat ID**  
-   - Easiest: message [@userinfobot](https://t.me/userinfobot) or [@getidsbot](https://t.me/getidsbot); it replies with your numeric **user id** (use that as `TELEGRAM_CHAT_ID`).  
-   - Or: add your bot to a group and use a group chat id if you want notifications there (group ids are often negative).
-
-3. **Start the bot**  
-   Open a private chat with your bot and tap **Start** so the bot can message you.
-
-4. **Put secrets in `.env`** (on your Mac and again on the server — never commit this file):
-
-   ```env
-   TELEGRAM_BOT_TOKEN=paste_token_from_botfather
-   TELEGRAM_CHAT_ID=paste_numeric_chat_id
-   ```
-
----
-
-## Local setup (Mac or any machine)
+### 1. Fork and clone
 
 ```bash
-cd /path/to/job
+git clone https://github.com/<your-username>/Job_Notifier.git
+cd Job_Notifier
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
-cp config.example.json config.json   # optional; repo already has config.json
-nano .env                             # add TELEGRAM_* as above
-.venv/bin/python main.py --once     # one poll, then exit
+.venv/bin/python -m playwright install --with-deps chromium   # needed for ~13 JS-rendered career sites
 ```
 
-- **`main.py --once`** — single poll (good for cron or testing).  
-- **`main.py`** (no flag) — loops forever using `poll_interval_seconds` from `config.json`.
+### 2. Create your own Telegram bot
 
-Optional environment variables (defaults match the systemd unit on Oracle):
+1. Open a chat with [@BotFather](https://t.me/BotFather) in Telegram, send `/newbot`, and follow the prompts. You'll get a **bot token** (looks like `123456789:AAH…`).
+2. Get your numeric **chat ID** — message [@userinfobot](https://t.me/userinfobot) or [@getidsbot](https://t.me/getidsbot) and it replies with your user id. (Or add the bot to a group and use that group's id — group ids are usually negative.)
+3. Open a private chat with your new bot and tap **Start** so it's allowed to message you.
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `CONFIG_PATH` | `./config.json` | Path to job source config |
-| `STATE_DB_PATH` | `./state.db` | SQLite file for “already seen” job ids |
+### 3. Configure secrets locally
 
----
+```bash
+cp .env.example .env
+```
 
-## Oracle Cloud VM (production)
+Edit `.env`:
 
-Full step-by-step (account, VM shape, SSH, security lists, rsync) is in:
+```env
+TELEGRAM_BOT_TOKEN=paste_token_from_botfather
+TELEGRAM_CHAT_ID=paste_numeric_chat_id
 
-**[`deploy/oracle/STEPS.txt`](deploy/oracle/STEPS.txt)**
+# Optional — only needed for the NASA source, get a free key at https://developer.usajobs.gov/apirequest/
+USAJOBS_API_KEY=
+USAJOBS_USER_AGENT=your.email@example.com
+```
 
-Short version:
+`.env` is git-ignored — never commit it.
 
-1. Create an **Always Free** Ubuntu **ARM64** instance with a **public IPv4** and your **SSH key**.
-2. Security list: allow **TCP 22** from **your IP /32** (avoid `0.0.0.0/0` unless you know the risk).
-3. SSH in as **`ubuntu`** (Ubuntu image) or **`opc`** (Oracle Linux).
-4. Install `python3`, `python3-venv`, `git`, copy the project (`rsync` or `git clone`).
-5. On the VM: `python3 -m venv .venv`, `pip install -r requirements.txt`, create **`~/job/.env`** with the same Telegram variables as locally.
-6. Test: `cd ~/job && .venv/bin/python main.py --once`
-7. Install systemd:
+### 4. Test locally
 
-   ```bash
-   sudo cp ~/job/deploy/oracle/internship-watcher.service /etc/systemd/system/
-   # If your user is opc or paths differ, edit the unit file first (User, WorkingDirectory, paths).
-   sudo systemctl daemon-reload
-   sudo systemctl enable internship-watcher
-   sudo systemctl start internship-watcher
-   sudo systemctl status internship-watcher
-   journalctl -u internship-watcher -f
-   ```
+```bash
+.venv/bin/python main.py --once
+```
 
-The bundled unit file sets **`PYTHONUNBUFFERED=1`** so log lines from Python show up in `journalctl` immediately.
+This does a single poll of all 171 sources (~20–25 minutes, mostly HTTP requests plus Playwright for the JS-heavy sites) and messages you for every internship-matching posting found. **The first run will likely send a lot of messages** since `state.db` starts empty and everything looks "new" — that's expected. After that, only genuinely new postings per source trigger a message.
 
-**Updating code on the VM:** rsync or `git pull` on `~/job`, then `sudo systemctl restart internship-watcher`.
+### 5. Run it 24/7 for free (GitHub Actions — recommended)
 
-**First run:** If `state.db` is new or empty, the first successful poll can send **many** Telegram messages (everything looks “new”). After that, only new job ids per source are notified.
+No VM, no always-on laptop required. The included workflow (`.github/workflows/watch.yml`) polls every 30 minutes and persists `state.db` back into the repo between runs.
+
+1. Push your fork to GitHub (if you haven't already).
+2. Repo → **Settings → Secrets and variables → Actions → New repository secret**, add:
+   - `TELEGRAM_BOT_TOKEN`
+   - `TELEGRAM_CHAT_ID`
+   - `USAJOBS_API_KEY` / `USAJOBS_USER_AGENT` (optional, only for NASA)
+3. Repo → **Settings → Actions → General → Workflow permissions** → select **Read and write permissions** (the workflow commits the updated `state.db` after each run).
+4. Repo → **Actions** tab → run **"Internship watcher poll"** once manually (`Run workflow`) to seed `state.db`, or just wait for the next scheduled run.
+
+That's it — it now runs indefinitely on GitHub's infrastructure, even with your laptop off.
+
+### 6. (Alternative) Self-hosted VM
+
+If you'd rather run it on your own always-on machine instead of GitHub Actions, see **[`deploy/oracle/STEPS.txt`](deploy/oracle/STEPS.txt)** for a full Oracle Cloud Always-Free walkthrough with `systemd`. Not required if you're using GitHub Actions.
 
 ---
 
 ## Configuration
 
-- **`config.json`** — list of companies (`sources`), poll interval, title keywords (`intern`, `internship`, `student`), and **`location_filter`** (`countries: ["US"]`) with heuristics in `main.py`.
-- **`scripts/build_config.py`** — regenerates `config.json` from the `SOURCES` list in that script. Run:  
-  `python3 scripts/build_config.py`
+- **`config.json`** — the 171 sources (`sources`), poll interval, title keywords (`intern`, `internship`, `student`), and `location_filter` (`countries: ["US"]`) with heuristics in `main.py`.
+- **`scripts/build_config.py`** — regenerates `config.json` from the `SOURCES` list in that script. Edit sources there, then run:
+
+  ```bash
+  .venv/bin/python scripts/build_config.py
+  ```
+
+- Fetcher types supported (see `main.py`): `workday`, `greenhouse`, `lever`, `ashby`, `smartrecruiters`, `workable`, `pcsx`, `google_careers`, `amazon`, `oracle_careers`, `usajobs`, `phenom`, `successfactors`, `avature`, and `playwright` (custom browser-driven scrapers in `scripts/playwright_fetch.py` for bot-protected/JS-only sites like Apple, Meta, Tesla, Wells Fargo, etc.).
+- **`scripts/ats_detect.py`**, **`scripts/discover_*.py`**, **`scripts/probe_*.py`** — one-off tools used to find/verify each company's ATS and slug when adding new sources or fixing a broken one.
 
 ---
 
-## Companies included (current `config.json`)
+## Companion webapp — is it usable by other people?
 
-These **56** sources are polled (name as shown in notifications):
+**Short answer: as deployed at the live URL, no — it's wired to one person's Telegram bot and shared data. To use it yourself, deploy your own copy (10 minutes).**
 
-**All tracked employers (56):** Microsoft · Google · Netflix · Amazon · **Oracle** · NVIDIA · Salesforce · Adobe · Workday · BlackRock · Leidos · Boston Dynamics · Booz Allen Hamilton · Morgan Stanley · Capital One · LinkedIn · Uber · Lyft · Twitter / X · Pinterest · Dropbox · ServiceNow · SpaceX · Waymo · Zoox · Nuro · Stripe · Robinhood · Affirm · Chime · Plaid · Brex · Ramp · Jane Street · Optiver · Virtu Financial · Anthropic · OpenAI · Scale AI · Cohere · Mistral AI · Perplexity AI · xAI · Codeium / Windsurf · Anduril · Palantir · Notion · Linear · Vercel · Airtable · Figma · Amplitude · Datadog · Snowflake · Databricks · Hugging Face
+Longer answer — how the webapp is built:
 
-**Feed types in use:** PCSX / Eightfold-style (`microsoft`, `pcsx`), `google_careers`, `amazon`, `oracle_careers`, `workday`, `greenhouse`, `lever`, `ashby`, `smartrecruiters`, `workable` (Hugging Face via `apply.workable.com/.../jobs.md`).
+- **Browsing companies** (`index.html`) is fully static and safe for anyone to view — same `companies.json` for everyone.
+- **"Mark applied"** state lives in each visitor's own browser `localStorage`, so that part is already private per-visitor.
+- **Telegram sync** (cross-device sync of applied/notes/deadlines, plus the "test message" button) goes through a Vercel serverless proxy (`webapp/api/telegram.js`) that injects **one hardcoded bot token and chat ID from that Vercel project's own environment variables**. Every visitor to the live URL who uses sync is reading/writing the *same* pinned Telegram message and sending messages to the *same* chat — not their own. That's a deliberate simplification (it's built for one person: the deployer) and means it is **not currently multi-tenant**.
 
----
+To get your own fully private instance of the webapp:
 
-## Not in this repo’s config
+1. Fork `webapp/` (it's its own repo — see `webapp/README.md`) or copy the folder into your own repo.
+2. Update `webapp/companies.json` from your `config.json` (`scripts/build_config.py` output already matches it 1:1 in structure).
+3. Deploy to Vercel: `cd webapp && npx vercel --prod`.
+4. In the Vercel project settings, set **your own** `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` env vars (same bot/chat as step 2/3 above) — this is what makes the sync/test-message features work for *your* Telegram, privately.
+5. Optional: set `OPENAI_API_KEY` for the Resume and Recruiter-follow-up tabs.
+6. Run `.venv/bin/python scripts/bootstrap_pinned.py` once (from `Job_Notifier`, with your `.env` filled in) to create the pinned sync message your bot and webapp share.
 
-Employers without a verified public feed in this watcher (e.g. Meta, Apple, Tesla, Coinbase on their current ATS) are omitted until a concrete API URL and parser exist. See past discussion in the project chat for why.
+Full details, troubleshooting, and the embed snippet are in [`webapp/README.md`](webapp/README.md).
 
 ---
 
 ## License / ops
 
-- Do not commit **`.env`** or **private SSH keys**.  
-- Ensure the VM allows **HTTPS outbound** (443) to job boards and `api.telegram.org`.
-
----
-
-## Intern Tracker webapp
-
-Companion UI for marking companies applied, calendar deadlines, and Telegram sync.
-
-| What | Where |
-|------|-------|
-| **Live app** | https://webapp-two-peach.vercel.app |
-| **Source** | https://github.com/nehanataraj/internship-notifs |
-| **Setup guide** | See README in the webapp repo |
-
-Use the **same** `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` in the webapp Settings as in this repo's `.env`. One-time pin bootstrap:
-
-```bash
-.venv/bin/python scripts/bootstrap_pinned.py
-```
-
-Regenerate `companies.json` for the webapp:
-
-```bash
-.venv/bin/python scripts/build_webapp_data.py
-```
-
+- Never commit `.env` or private SSH keys.
+- If self-hosting, ensure outbound HTTPS (443) is allowed to job boards and `api.telegram.org`.
