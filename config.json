@@ -5,6 +5,7 @@
     "internship",
     "student"
   ],
+  "title_require_any": [],
   "location_filter": {
     "countries": [
       "US"

@@ -517,6 +517,11 @@ SOURCES: list[dict] = [
 CONFIG = {
     "poll_interval_seconds": 180,
     "title_keywords": ["intern", "internship", "student"],
+    # Optional AND-filter: if non-empty, a posting must ALSO match one of
+    # these (on top of title_keywords) to be notified. Leave empty to keep
+    # every internship/student posting. See README "Customizing the keyword
+    # filter" for role-specific examples (e.g. engineering-only).
+    "title_require_any": [],
     "location_filter": {"countries": ["US"]},
     "sources": SOURCES,
 }

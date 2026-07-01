@@ -85,6 +85,34 @@ If you'd rather run it on your own always-on machine instead of GitHub Actions, 
 - Fetcher types supported (see `main.py`): `workday`, `greenhouse`, `lever`, `ashby`, `smartrecruiters`, `workable`, `pcsx`, `google_careers`, `amazon`, `oracle_careers`, `usajobs`, `phenom`, `successfactors`, `avature`, and `playwright` (custom browser-driven scrapers in `scripts/playwright_fetch.py` for bot-protected/JS-only sites like Apple, Meta, Tesla, Wells Fargo, etc.).
 - **`scripts/ats_detect.py`**, **`scripts/discover_*.py`**, **`scripts/probe_*.py`** — one-off tools used to find/verify each company's ATS and slug when adding new sources or fixing a broken one.
 
+### Customizing the keyword filter (e.g. switching from all-internships to Engineering/CompE-only)
+
+By default this watcher is **not** SWE-specific — `title_keywords` (`intern`, `internship`, `student`) matches *any* internship title at the configured companies (software, hardware, business, finance, marketing, whatever the company happens to post). It just looks tech-heavy because most of the 171 configured companies are tech companies.
+
+To narrow it to a specific discipline, edit `config.json` and add a **`title_require_any`** list. If set, a posting must match `title_keywords` **and** at least one entry in `title_require_any` to trigger a notification — everything else (marketing/finance/business-only internships, etc.) is filtered out.
+
+```json
+{
+  "title_keywords": ["intern", "internship", "student"],
+  "title_require_any": [
+    "engineer",
+    "engineering",
+    "computer engineering",
+    "electrical",
+    "hardware",
+    "firmware",
+    "embedded",
+    "systems engineer",
+    "swe"
+  ]
+}
+```
+
+- Leave `title_require_any` as `[]` (the default) to keep every internship, unfiltered by discipline.
+- Matching is case-insensitive substring matching (same rules as `title_keywords`) — so `"engineer"` also matches `"Engineering"`, `"Data Engineer"`, etc. Add/remove terms to taste.
+- No restart needed for a local run; for GitHub Actions, just commit and push the change — the next scheduled poll picks it up.
+- If you regenerate `config.json` via `scripts/build_config.py`, edit the `title_require_any` line in that script's `CONFIG` dict too so it doesn't get overwritten back to `[]`.
+
 ---
 
 ## Companion webapp — is it usable by other people?

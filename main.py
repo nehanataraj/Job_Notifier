@@ -1300,6 +1300,7 @@ def poll_once(config: dict[str, Any]) -> int:
     token = get_env("TELEGRAM_BOT_TOKEN")
     chat_id = get_env("TELEGRAM_CHAT_ID")
     keywords = config.get("title_keywords") or ["intern", "internship"]
+    require_any = config.get("title_require_any") or []
     us_only = location_filter_wants_us_only(config)
 
     conn = sqlite3.connect(STATE_DB)
@@ -1324,6 +1325,8 @@ def poll_once(config: dict[str, Any]) -> int:
             title = job["title"]
             url = job["url"]
             if not title_matches(title, keywords):
+                continue
+            if require_any and not title_matches(title, require_any):
                 continue
             if us_only and not job_matches_us_location(job, title):
                 continue
