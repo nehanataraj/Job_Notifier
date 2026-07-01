@@ -1,0 +1,43 @@
+name: Internship watcher poll
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: internship-watcher
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Poll job boards
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python main.py --once
+
+      # state.db is gitignored for local dev to avoid noisy commits from manual
+      # runs; the workflow force-adds it so "already seen" job ids persist
+      # between these ephemeral runners.
+      - name: Persist seen-job state
+        run: |
+          git config user.name "internship-watcher-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -f state.db
+          git diff --cached --quiet || git commit -m "chore: update state.db [skip ci]"
+          git push
