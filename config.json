@@ -251,8 +251,8 @@
     },
     {
       "name": "Mistral AI",
-      "type": "ashby",
-      "board_slug": "mistral"
+      "type": "lever",
+      "company_slug": "mistral"
     },
     {
       "name": "Perplexity AI",
@@ -616,8 +616,11 @@
     },
     {
       "name": "Unity Technologies",
-      "type": "greenhouse",
-      "board_token": "unity3d"
+      "type": "workday",
+      "host": "https://unitytech.wd1.myworkdayjobs.com",
+      "tenant": "unitytech",
+      "site": "Unity",
+      "search_text": "intern"
     },
     {
       "name": "Take-Two Interactive",

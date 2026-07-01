@@ -31,7 +31,7 @@ if "JTRACK::" in (pm.get("text") or ""):
     print(f"Data message already pinned (id {pm['message_id']}).")
 else:
     payload = "Internship tracker data \u2014 do not unpin or delete\nJTRACK::" + json.dumps(
-        {"applied": {}, "notified": {}, "deadlines": [], "updatedAt": 0}
+        {"applied": {}, "notified": {}, "notes": {}, "deadlines": [], "updatedAt": 0}
     )
     msg = tg("sendMessage", {"chat_id": CHAT, "text": payload, "disable_notification": True})
     tg("pinChatMessage", {"chat_id": CHAT, "message_id": msg["message_id"], "disable_notification": True})
