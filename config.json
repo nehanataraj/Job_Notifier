@@ -5,7 +5,23 @@
     "internship",
     "student"
   ],
-  "title_require_any": [],
+  "title_require_any": [
+    "software",
+    "swe",
+    "developer",
+    "programmer",
+    "backend",
+    "back end",
+    "frontend",
+    "front end",
+    "full stack",
+    "fullstack",
+    "computer science",
+    "web developer",
+    "mobile developer",
+    "ios developer",
+    "android developer"
+  ],
   "location_filter": {
     "countries": [
       "US"

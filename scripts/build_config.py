@@ -521,7 +521,24 @@ CONFIG = {
     # these (on top of title_keywords) to be notified. Leave empty to keep
     # every internship/student posting. See README "Customizing the keyword
     # filter" for role-specific examples (e.g. engineering-only).
-    "title_require_any": [],
+    # Set to software/SWE-only for this personal deployment.
+    "title_require_any": [
+        "software",
+        "swe",
+        "developer",
+        "programmer",
+        "backend",
+        "back end",
+        "frontend",
+        "front end",
+        "full stack",
+        "fullstack",
+        "computer science",
+        "web developer",
+        "mobile developer",
+        "ios developer",
+        "android developer",
+    ],
     "location_filter": {"countries": ["US"]},
     "sources": SOURCES,
 }
